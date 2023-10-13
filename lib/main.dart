@@ -8,12 +8,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('News Feed'),
-        ),
-        body: MyHomePage(),
-      ),
+      home: MyHomePage(),
     );
   }
 }
@@ -24,41 +19,64 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePage extends State<MyHomePage> {
+
+  List<Item> items = List.generate(5, (index) => Item("Item ${index + 1}"));
+  List<Item> selectedItems = [];
+
   @override
   Widget build(BuildContext context) {
-    // Determine the current device orientation
-    final Orientation orientation = MediaQuery.of(context).orientation;
-
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: (orientation == Orientation.portrait) ? 1 : 2,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Selection Screen"),
       ),
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Card(
-            child: Center(
-              child: Placeholder(
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  color: Colors.grey,
-                  child: Center(child: Text('150 x 150')),
-                ),
-              ),
-
-              // child: Image.network(
-              //
-              //   'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Bill_Gates_2017_%28cropped%29.jpg/330px-Bill_Gates_2017_%28cropped%29.jpg',
-              //   width: 150,
-              //   height: 150,
-              //   fit: BoxFit.cover,
-              // ),
-            ),
-          ),
-        );
-      },
+      body: ListView.builder(
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(items[index].name),
+            tileColor: selectedItems.contains(items[index])
+                ? Colors.blue
+                : Colors.white,
+            onTap: () {
+              setState(() {
+                if (selectedItems.contains(items[index])) {
+                  selectedItems.remove(items[index]);
+                } else {
+                  selectedItems.add(items[index]);
+                }
+              });
+            },
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text("Selected Items"),
+                content: Text("Number of selected items: ${selectedItems.length}"),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text("Close"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        },
+        child: Icon(Icons.check),
+      ),
     );
   }
+}
+
+class Item {
+  final String name;
+
+  Item(this.name);
 }
